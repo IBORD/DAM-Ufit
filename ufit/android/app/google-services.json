@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "469137182333",
+    "project_id": "ufit-88058",
+    "storage_bucket": "ufit-88058.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469137182333:android:f16880ff76b866c7a62b14",
+        "android_client_info": {
+          "package_name": "com.example.ufit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKYa4mzsZOU3EcueOi__efI3h0iqbjaS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
