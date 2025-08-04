@@ -24,8 +24,6 @@ migrate_working_dir/
 #.vscode/
 
 # Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
@@ -39,7 +37,31 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# IDEs
+.idea
+.vscode
+.flutter-plugins
+.flutter-plugins-dependencies
+.DS_Store
+
+# Build artifacts
+/build/
+**/doc/api/
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# dependencies
+/.pub-cache/
+/vendor/
+/ios/.symlinks/
+/android/.idea/
+/android/.gradle/
+
+# Local configuration
+*.iml
+.env
+.env.local
+
+# Generated files
+*.g.dart
