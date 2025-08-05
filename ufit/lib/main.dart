@@ -22,25 +22,96 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  String _username = '';
+  String _password = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tela de Login'),
+        title: const Text('UFIT',
+        style: TextStyle(fontSize: 55),
+        ),
+        centerTitle: true,
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const MainScreen()),
-            );
-          },
-          child: const Text('Logar'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+           key: _formKey,
+           child: Column( 
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Usuário',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, digite seu usuário';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _username = value ?? '',
+              ),
+
+              const SizedBox(height: 16),
+
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Senha',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, digite sua senha';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _password = value ?? '',
+              ),
+
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const MainScreen()),
+                        );
+                      }
+                    },
+                    child: const Text('Logar'),
+                  ),
+                  const SizedBox(width: 300),
+                  ElevatedButton(
+                    onPressed: () {
+                      
+                    },
+                    child: const Text('Registrar',
+                      style: TextStyle()
+                    ),
+                    
+                  ),
+                ],
+              )
+              
+            ],
+          ),
         ),
       ),
     );
