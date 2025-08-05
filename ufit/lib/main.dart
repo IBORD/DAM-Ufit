@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ufit/src/pages/register_user_page.dart';
 import 'src/pages/home_page.dart';
 import 'src/pages/training_page.dart';
 
@@ -44,76 +45,84 @@ class _LoginPageState extends State<LoginPage> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-           key: _formKey,
-           child: Column( 
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Usuário',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, digite seu usuário';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _username = value ?? '',
-              ),
-
-              const SizedBox(height: 16),
-
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Senha',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, digite sua senha';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _password = value ?? '',
-              ),
-
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const MainScreen()),
-                        );
-                      }
-                    },
-                    child: const Text('Logar'),
-                  ),
-                  const SizedBox(width: 300),
-                  ElevatedButton(
-                    onPressed: () {
-                      
-                    },
-                    child: const Text('Registrar',
-                      style: TextStyle()
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 47),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500), 
+              child: Form(
+                key: _formKey,
+                child: Column( 
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Usuário',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, digite seu usuário';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) => _username = value ?? '',
                     ),
+
+                    const SizedBox(height: 16),
+
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Senha',
+                        border: OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, digite sua senha';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) => _password = value ?? '',
+                    ),
+
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
+
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const MainScreen()),
+                              );
+                            }
+                          },
+                          child: const Text('Logar'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const RegisterPage()),
+                              );
+                          },
+                          child: const Text('Registrar',
+                            style: TextStyle()
+                          ),
+                          
+                        ),
+                      ],
+                    )
                     
-                  ),
-                ],
-              )
-              
-            ],
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-      ),
     );
   }
 }
