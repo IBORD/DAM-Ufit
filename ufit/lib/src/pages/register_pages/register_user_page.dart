@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ufit/src/pages/auth.pages/auth_service.dart';
 
 class UserRegistrationData {
   String nome = '';
@@ -30,17 +32,37 @@ class _RegisterPageState extends State<RegisterPage> {
   final PageController _controller = PageController();
   final UserRegistrationData userData = UserRegistrationData();
 
-  final List<GlobalKey<FormState>> _formKeys = List.generate(4, (_) => GlobalKey<FormState>());
+  final List<GlobalKey<FormState>> _formKeys = List.generate(
+    4,
+    (_) => GlobalKey<FormState>(),
+  );
+
+  void register() async {
+    try {
+      await authService.value.createAccount(
+        email: userData.email,
+        password: userData.senha,
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        print("Erro ao registrar: ${e.message}");
+        // errorMessage = e.message ?? 'Erro desconhecido';
+      });
+    }
+  }
 
   void _nextStep() {
     if (true) {
-      setState(() {
+      setState(() async {
         if (_currentStep < 3) {
           _currentStep++;
-          _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+          _controller.nextPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease,
+          );
         } else {
+          register();
           // Última etapa -> Enviar ou salvar os dados
-          print("Dados do usuário: ${userData.nome}, ${userData.biotipo}, ...");
         }
       });
     }
@@ -50,7 +72,10 @@ class _RegisterPageState extends State<RegisterPage> {
     if (_currentStep > 0) {
       setState(() {
         _currentStep--;
-        _controller.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+        _controller.previousPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.ease,
+        );
       });
     }
   }
@@ -58,10 +83,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cadastro'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Cadastro'), centerTitle: true),
       body: PageView(
         controller: _controller,
         physics: const NeverScrollableScrollPhysics(),
@@ -101,7 +123,11 @@ class Step1UserData extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final UserRegistrationData userData;
 
-  const Step1UserData({super.key, required this.formKey, required this.userData});
+  const Step1UserData({
+    super.key,
+    required this.formKey,
+    required this.userData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,49 +141,66 @@ class Step1UserData extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text("Informações Pessoais", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                const Text(
+                  "Informações Pessoais",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 27),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Nome'),
                   initialValue: userData.nome,
                   onChanged: (value) => userData.nome = value,
-                  validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obrigatório'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Sobrenome'),
                   initialValue: userData.sobrenome,
                   onChanged: (value) => userData.sobrenome = value,
-                  validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obrigatório'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Email'),
                   initialValue: userData.email,
                   onChanged: (value) => userData.email = value,
-                  validator: (value) => value != null && value.contains('@') ? null : 'Email inválido',
+                  validator: (value) => value != null && value.contains('@')
+                      ? null
+                      : 'Email inválido',
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Senha'),
                   onChanged: (value) => userData.senha = value,
-                  validator: (value) => value != null && value.length >= 6 ? null : 'Mínimo 6 caracteres',
+                  validator: (value) => value != null && value.length >= 6
+                      ? null
+                      : 'Mínimo 6 caracteres',
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Confirmar Senha'),
+                  decoration: const InputDecoration(
+                    labelText: 'Confirmar Senha',
+                  ),
                   onChanged: (value) => userData.confirmarSenha = value,
-                  validator: (value) =>
-                      value != null && value == userData.senha ? null : 'Senhas não coincidem',
+                  validator: (value) => value != null && value == userData.senha
+                      ? null
+                      : 'Senhas não coincidem',
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'CPF'),
                   initialValue: userData.cpf,
                   onChanged: (value) => userData.cpf = value,
-                  validator: (value) => value == null || value.length != 11 ? 'CPF inválido' : null,
+                  validator: (value) => value == null || value.length != 11
+                      ? 'CPF inválido'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -165,24 +208,36 @@ class Step1UserData extends StatelessWidget {
                   initialValue: userData.idade,
                   onChanged: (value) => userData.idade = value,
                   keyboardType: TextInputType.number,
-                  validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obrigatório'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Endereço'),
                   initialValue: userData.endereco,
                   onChanged: (value) => userData.endereco = value,
-                  validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obrigatório'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Gênero'),
                   value: userData.genero.isNotEmpty ? userData.genero : null,
                   onChanged: (value) => userData.genero = value ?? '',
-                  validator: (value) => value == null || value.isEmpty ? 'Selecione uma opção' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Selecione uma opção'
+                      : null,
                   items: const [
-                    DropdownMenuItem(value: 'masculino', child: Text('Masculino')),
-                    DropdownMenuItem(value: 'feminino', child: Text('Feminino')),
+                    DropdownMenuItem(
+                      value: 'masculino',
+                      child: Text('Masculino'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'feminino',
+                      child: Text('Feminino'),
+                    ),
                   ],
                 ),
               ],
@@ -212,7 +267,11 @@ class Step2Goals extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text("Metas e Objetivos", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                const Text(
+                  "Metas e Objetivos",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 27),
                 CheckboxListTile(
                   title: const Text("Perder Peso"),
@@ -249,14 +308,29 @@ class Step2Goals extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Objetivo Principal'),
-                  value: userData.objetivo.isNotEmpty ? userData.objetivo : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Objetivo Principal',
+                  ),
+                  value: userData.objetivo.isNotEmpty
+                      ? userData.objetivo
+                      : null,
                   onChanged: (value) => userData.objetivo = value ?? '',
-                  validator: (value) => value == null || value.isEmpty ? 'Selecione uma opção' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Selecione uma opção'
+                      : null,
                   items: const [
-                    DropdownMenuItem(value: 'emagrecer', child: Text('Emagrecer')),
-                    DropdownMenuItem(value: 'hipertrofia', child: Text('Hipertrofia')),
-                    DropdownMenuItem(value: 'condicionamento', child: Text('Condicionamento Físico')),
+                    DropdownMenuItem(
+                      value: 'emagrecer',
+                      child: Text('Emagrecer'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'hipertrofia',
+                      child: Text('Hipertrofia'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'condicionamento',
+                      child: Text('Condicionamento Físico'),
+                    ),
                   ],
                 ),
               ],
@@ -272,7 +346,11 @@ class Step3BodyType extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final UserRegistrationData userData;
 
-  const Step3BodyType({super.key, required this.formKey, required this.userData});
+  const Step3BodyType({
+    super.key,
+    required this.formKey,
+    required this.userData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -286,17 +364,32 @@ class Step3BodyType extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text("Biotipo Corporal", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                const Text(
+                  "Biotipo Corporal",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 27),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Biotipo'),
                   value: userData.biotipo.isNotEmpty ? userData.biotipo : null,
                   onChanged: (value) => userData.biotipo = value ?? '',
-                  validator: (value) => value == null || value.isEmpty ? 'Escolha um biotipo' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Escolha um biotipo'
+                      : null,
                   items: const [
-                    DropdownMenuItem(value: 'ectomorfo', child: Text('Ectomorfo')),
-                    DropdownMenuItem(value: 'endomorfo', child: Text('Endomorfo')),
-                    DropdownMenuItem(value: 'mesomorfo', child: Text('Mesomorfo')),
+                    DropdownMenuItem(
+                      value: 'ectomorfo',
+                      child: Text('Ectomorfo'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'endomorfo',
+                      child: Text('Endomorfo'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'mesomorfo',
+                      child: Text('Mesomorfo'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -305,7 +398,8 @@ class Step3BodyType extends StatelessWidget {
                   initialValue: userData.peso,
                   keyboardType: TextInputType.number,
                   onChanged: (value) => userData.peso = value,
-                  validator: (value) => value == null || value.isEmpty ? 'Informe o peso' : null,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Informe o peso' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -313,7 +407,9 @@ class Step3BodyType extends StatelessWidget {
                   initialValue: userData.altura,
                   keyboardType: TextInputType.number,
                   onChanged: (value) => userData.altura = value,
-                  validator: (value) => value == null || value.isEmpty ? 'Informe a altura' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Informe a altura'
+                      : null,
                 ),
               ],
             ),
@@ -328,7 +424,11 @@ class Step4Conditioning extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final UserRegistrationData userData;
 
-  const Step4Conditioning({super.key, required this.formKey, required this.userData});
+  const Step4Conditioning({
+    super.key,
+    required this.formKey,
+    required this.userData,
+  });
 
   @override
   State<Step4Conditioning> createState() => _Step4ConditioningState();
@@ -373,28 +473,40 @@ class _Step4ConditioningState extends State<Step4Conditioning> {
                 ),
                 const SizedBox(height: 27),
                 DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Onde você pretende treinar?'),
-                  value: widget.userData.localTreino.isNotEmpty ? widget.userData.localTreino : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Onde você pretende treinar?',
+                  ),
+                  value: widget.userData.localTreino.isNotEmpty
+                      ? widget.userData.localTreino
+                      : null,
                   onChanged: (value) {
                     setState(() {
                       widget.userData.localTreino = value ?? '';
                       showGymList = (value == 'academia');
                       if (!showGymList) {
                         academiaSelecionada = null;
-                        widget.userData.objetivo = ''; // opcional limpar campo relacionado se desejar
+                        widget.userData.objetivo =
+                            ''; // opcional limpar campo relacionado se desejar
                       }
                     });
                   },
-                  validator: (value) => value == null || value.isEmpty ? 'Selecione uma opção' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Selecione uma opção'
+                      : null,
                   items: const [
                     DropdownMenuItem(value: 'casa', child: Text('Em casa')),
-                    DropdownMenuItem(value: 'academia', child: Text('Na academia')),
+                    DropdownMenuItem(
+                      value: 'academia',
+                      child: Text('Na academia'),
+                    ),
                   ],
                 ),
                 if (showGymList) ...[
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Selecione a academia'),
+                    decoration: const InputDecoration(
+                      labelText: 'Selecione a academia',
+                    ),
                     value: academiaSelecionada,
                     onChanged: (value) {
                       setState(() {
@@ -402,12 +514,18 @@ class _Step4ConditioningState extends State<Step4Conditioning> {
                         widget.userData.objetivo = value ?? '';
                       });
                     },
-                    validator: (value) => value == null || value.isEmpty ? 'Selecione uma academia' : null,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Selecione uma academia'
+                        : null,
                     items: academias
-                        .map((academia) => DropdownMenuItem<String>(
-                              value: academia['nome'],
-                              child: Text('${academia['nome']} - ${academia['distancia'].toStringAsFixed(1)} km'),
-                            ))
+                        .map(
+                          (academia) => DropdownMenuItem<String>(
+                            value: academia['nome'],
+                            child: Text(
+                              '${academia['nome']} - ${academia['distancia'].toStringAsFixed(1)} km',
+                            ),
+                          ),
+                        )
                         .toList(),
                   ),
                 ],
