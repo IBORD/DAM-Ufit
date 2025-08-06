@@ -22,9 +22,9 @@ class AuthLayout extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               widget = const AppLoadingPage();
             } else if (snapshot.hasData) {
-              widget = const LoginPage();
+              widget = const MainScreen();
             } else {
-              widget = pageIfNotConnected ?? const MainScreen();
+              widget = pageIfNotConnected ?? const LoginPage();
             }
             return widget;
           },

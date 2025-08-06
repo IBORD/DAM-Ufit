@@ -14,19 +14,33 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
-  void logIn() async {
-    try {
-      await authService.value.signIn(email: _username, password: _password);
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        // errorMessage = e.message ?? 'Erro desconhecido';
-        print("Erro ao fazer login: ${e.message}");
-      });
-    }
-  }
-
   String _username = '';
   String _password = '';
+
+  void logIn() async {
+    final form = _formKey.currentState;
+    if (form != null && form.validate()) {
+      form.save(); // Salva os valores nos campos onSaved
+
+      try {
+        await authService.value.signIn(email: _username, password: _password);
+
+        // Navega para a tela principal após login bem-sucedido
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+        );
+      } on FirebaseAuthException catch (e) {
+        print("Erro ao fazer login: ${e.message}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erro: ${e.message}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,19 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          logIn();
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
-
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MainScreen(),
-                              ),
-                            );
-                          }
-                        },
+                        onPressed: logIn, // Correção aqui
                         child: const Text('Logar'),
                       ),
                       ElevatedButton(
@@ -105,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           );
                         },
-                        child: const Text('Registrar', style: TextStyle()),
+                        child: const Text('Registrar'),
                       ),
                     ],
                   ),

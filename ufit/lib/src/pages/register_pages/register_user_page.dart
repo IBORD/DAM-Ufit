@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ufit/src/pages/auth.pages/auth_service.dart';
+import 'package:ufit/src/pages/main_page.dart';
 
 class UserRegistrationData {
   String nome = '';
@@ -53,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _nextStep() {
     if (true) {
-      setState(() async {
+      setState(() {
         if (_currentStep < 3) {
           _currentStep++;
           _controller.nextPage(
@@ -62,6 +63,10 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         } else {
           register();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
           // Última etapa -> Enviar ou salvar os dados
         }
       });

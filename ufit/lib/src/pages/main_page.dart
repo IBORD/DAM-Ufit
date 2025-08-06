@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ufit/src/pages/home_page.dart';
 import 'package:ufit/src/pages/training_page.dart';
+import 'package:ufit/src/pages/profile_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -16,7 +17,8 @@ class _MainScreenState extends State<MainScreen> {
     HomePage(),
     TrainingPage(),
     Text('Página de Agenda (a ser implementada)'),
-    Text('Página de Perfil (a ser implementada)'),
+    SignOutPage(),
+    // Text('Página de Perfil (a ser implementada)'),
   ];
 
   void _onItemTapped(int index) {
