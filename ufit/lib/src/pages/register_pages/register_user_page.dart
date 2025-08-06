@@ -53,7 +53,8 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _nextStep() {
-    if (true) {
+    // Verifica se o formulário da etapa atual é válido
+    if (_formKeys[_currentStep].currentState!.validate()) {
       setState(() {
         if (_currentStep < 3) {
           _currentStep++;
@@ -67,11 +68,11 @@ class _RegisterPageState extends State<RegisterPage> {
             context,
             MaterialPageRoute(builder: (context) => const MainScreen()),
           );
-          // Última etapa -> Enviar ou salvar os dados
         }
       });
     }
   }
+
 
   void _prevStep() {
     if (_currentStep > 0) {
