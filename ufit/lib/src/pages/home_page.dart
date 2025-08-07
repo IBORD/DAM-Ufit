@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -21,7 +20,8 @@ class HomePage extends StatelessWidget {
     for (int i = 0; i < 7; i++) {
       final date = startOfWeek.add(Duration(days: i));
       final dayName = daysOfWeek[i];
-      final isToday = date.day == today && date.month == now.month && date.year == now.year;
+      final isToday =
+          date.day == today && date.month == now.month && date.year == now.year;
 
       calendarDays.add(_buildDayWithDate(dayName, date.day, isToday: isToday));
     }
@@ -101,7 +101,10 @@ class HomePage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          child: const Text('INICIAR', style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            'INICIAR',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                         Container(
                           padding: const EdgeInsets.all(8.0),
@@ -109,10 +112,7 @@ class HomePage extends StatelessWidget {
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white),
                           ),
-                          child: const Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                          ),
+                          child: const Icon(Icons.edit, color: Colors.white),
                         ),
                       ],
                     ),
@@ -168,7 +168,10 @@ class HomePage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-                      child: const Text('INICIAR', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'INICIAR',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),
