@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ufit/src/pages/auth.pages/auth_service.dart';
-import 'package:ufit/src/pages/register_pages/log_in_page.dart'; // <- import necessário
+import 'package:ufit/src/pages/register_pages/log_in_page.dart';
 
 class SignOutPage extends StatelessWidget {
   const SignOutPage({Key? key}) : super(key: key);

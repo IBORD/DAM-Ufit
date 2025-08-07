@@ -61,12 +61,12 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   TextFormField(
                     decoration: const InputDecoration(
-                      labelText: 'Usuário',
+                      labelText: 'Email',
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor, digite seu usuário';
+                        return 'Por favor, digite seu email';
                       }
                       return null;
                     },

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ufit/src/pages/auth.pages/auth_service.dart';
 import 'package:ufit/src/pages/main_page.dart';
+import 'package:ufit/src/pages/register_pages/log_in_page.dart';
 
 class UserRegistrationData {
   String nome = '';
@@ -27,7 +28,6 @@ class RegisterPage extends StatefulWidget {
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
-
 class _RegisterPageState extends State<RegisterPage> {
   int _currentStep = 0;
   final PageController _controller = PageController();
@@ -35,44 +35,51 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final List<GlobalKey<FormState>> _formKeys = List.generate(
     4,
-    (_) => GlobalKey<FormState>(),
+        (_) => GlobalKey<FormState>(),
   );
 
-  void register() async {
+  bool isLoading = false; // <- estado para exibir carregamento
+
+  Future<bool> register() async {
     try {
       await authService.value.createAccount(
         email: userData.email,
         password: userData.senha,
       );
+      return true;
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        print("Erro ao registrar: ${e.message}");
-        // errorMessage = e.message ?? 'Erro desconhecido';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao registrar: ${e.message}')),
+      );
+      return false;
     }
   }
 
-  void _nextStep() {
-    // Verifica se o formulário da etapa atual é válido
+  void _nextStep() async {
     if (_formKeys[_currentStep].currentState!.validate()) {
-      setState(() {
-        if (_currentStep < 3) {
+      _formKeys[_currentStep].currentState!.save();
+
+      if (_currentStep < 3) {
+        setState(() {
           _currentStep++;
           _controller.nextPage(
             duration: const Duration(milliseconds: 300),
             curve: Curves.ease,
           );
-        } else {
-          register();
+        });
+      } else {
+
+        bool success = await register();
+
+        if (success && context.mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const MainScreen()),
+            MaterialPageRoute(builder: (_) => const MainScreen()),
           );
         }
-      });
+      }
     }
   }
-
 
   void _prevStep() {
     if (_currentStep > 0) {
@@ -89,7 +96,20 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro'), centerTitle: true),
+        appBar: AppBar(
+          title: const Text('Cadastro'),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+              );
+            },
+          ),
+        ),
+
       body: PageView(
         controller: _controller,
         physics: const NeverScrollableScrollPhysics(),
@@ -108,14 +128,24 @@ class _RegisterPageState extends State<RegisterPage> {
             children: [
               if (_currentStep > 0)
                 TextButton.icon(
-                  onPressed: _prevStep,
+                  onPressed: isLoading ? null : _prevStep,
                   icon: const Icon(Icons.arrow_back),
                   label: const Text("Voltar"),
                 ),
               TextButton.icon(
-                onPressed: _nextStep,
-                icon: const Icon(Icons.arrow_forward),
-                label: Text(_currentStep < 3 ? "Próximo" : "Concluir"),
+                onPressed: isLoading ? null : _nextStep,
+                icon: isLoading
+                    ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+                    : const Icon(Icons.arrow_forward),
+                label: Text(
+                  isLoading
+                      ? "Enviando..."
+                      : (_currentStep < 3 ? "Próximo" : "Concluir"),
+                ),
               ),
             ],
           ),
@@ -184,9 +214,9 @@ class Step1UserData extends StatelessWidget {
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Senha'),
                   onChanged: (value) => userData.senha = value,
-                  validator: (value) => value != null && value.length >= 6
+                  validator: (value) => value != null && value.length >= 8
                       ? null
-                      : 'Mínimo 6 caracteres',
+                      : 'Mínimo 8 caracteres',
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -201,12 +231,16 @@ class Step1UserData extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'CPF'),
+                  decoration: const InputDecoration(labelText: 'CPF(Apenas números)'),
                   initialValue: userData.cpf,
+
                   onChanged: (value) => userData.cpf = value,
-                  validator: (value) => value == null || value.length != 11
-                      ? 'CPF inválido'
-                      : null,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Campo obrigatório';
+                      if (!RegExp(r'^\d{11}$').hasMatch(value)) return 'CPF inválido';
+                      return null;
+                    }
+
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -254,19 +288,35 @@ class Step1UserData extends StatelessWidget {
     );
   }
 }
-
-class Step2Goals extends StatelessWidget {
+class Step2Goals extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final UserRegistrationData userData;
 
   const Step2Goals({super.key, required this.formKey, required this.userData});
 
   @override
+  State<Step2Goals> createState() => _Step2GoalsState();
+}
+
+class _Step2GoalsState extends State<Step2Goals> {
+  void _toggleMeta(String meta, bool? selected) {
+    setState(() {
+      if (selected == true) {
+        if (!widget.userData.metas.contains(meta)) {
+          widget.userData.metas.add(meta);
+        }
+      } else {
+        widget.userData.metas.remove(meta);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Form(
-      key: formKey,
+      key: widget.formKey,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 47),
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500),
@@ -281,46 +331,32 @@ class Step2Goals extends StatelessWidget {
                 const SizedBox(height: 27),
                 CheckboxListTile(
                   title: const Text("Perder Peso"),
-                  value: userData.metas.contains("perder_peso"),
-                  onChanged: (value) {
-                    if (value == true) {
-                      userData.metas.add("perder_peso");
-                    } else {
-                      userData.metas.remove("perder_peso");
-                    }
-                  },
+                  value: widget.userData.metas.contains("perder_peso"),
+                  onChanged: (value) => _toggleMeta("perder_peso", value),
                 ),
                 CheckboxListTile(
                   title: const Text("Ganhar Massa Muscular"),
-                  value: userData.metas.contains("ganhar_massa"),
-                  onChanged: (value) {
-                    if (value == true) {
-                      userData.metas.add("ganhar_massa");
-                    } else {
-                      userData.metas.remove("ganhar_massa");
-                    }
-                  },
+                  value: widget.userData.metas.contains("ganhar_massa"),
+                  onChanged: (value) => _toggleMeta("ganhar_massa", value),
                 ),
                 CheckboxListTile(
                   title: const Text("Definição Muscular"),
-                  value: userData.metas.contains("definicao"),
-                  onChanged: (value) {
-                    if (value == true) {
-                      userData.metas.add("definicao");
-                    } else {
-                      userData.metas.remove("definicao");
-                    }
-                  },
+                  value: widget.userData.metas.contains("definicao"),
+                  onChanged: (value) => _toggleMeta("definicao", value),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(
                     labelText: 'Objetivo Principal',
                   ),
-                  value: userData.objetivo.isNotEmpty
-                      ? userData.objetivo
+                  value: widget.userData.objetivo.isNotEmpty
+                      ? widget.userData.objetivo
                       : null,
-                  onChanged: (value) => userData.objetivo = value ?? '',
+                  onChanged: (value) {
+                    setState(() {
+                      widget.userData.objetivo = value ?? '';
+                    });
+                  },
                   validator: (value) => value == null || value.isEmpty
                       ? 'Selecione uma opção'
                       : null,
@@ -347,6 +383,7 @@ class Step2Goals extends StatelessWidget {
     );
   }
 }
+
 
 class Step3BodyType extends StatelessWidget {
   final GlobalKey<FormState> formKey;
