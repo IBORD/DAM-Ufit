@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ufit/src/pages/equipment_page.dart';
+import 'package:ufit/src/pages/create_training.dart';
 
 class TrainingPage extends StatefulWidget {
   const TrainingPage({super.key});
@@ -9,6 +11,8 @@ class TrainingPage extends StatefulWidget {
 
 class _TrainingPageState extends State<TrainingPage> {
   bool _isWarmupEnabled = false;
+
+  List<Equipamento> _equipamentosSelecionados = [];
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +35,13 @@ class _TrainingPageState extends State<TrainingPage> {
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               const SizedBox(height: 16.0),
-              
+
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 12.0,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.blue[800],
                   borderRadius: BorderRadius.circular(16.0),
@@ -49,7 +56,7 @@ class _TrainingPageState extends State<TrainingPage> {
                 ),
               ),
               const SizedBox(height: 32.0),
-             
+
               const Text(
                 'Equipamentos',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -62,7 +69,19 @@ class _TrainingPageState extends State<TrainingPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final resultado = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EquipmentPage(),
+                      ),
+                    );
+
+                    if (resultado != null && resultado is List<Equipamento>) {
+                      setState(() {
+                        _equipamentosSelecionados = resultado;
+                      });
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[800],
@@ -76,7 +95,7 @@ class _TrainingPageState extends State<TrainingPage> {
                 ),
               ),
               const SizedBox(height: 32.0),
-              
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -85,7 +104,10 @@ class _TrainingPageState extends State<TrainingPage> {
                     children: [
                       Text(
                         'AQUECIMENTO',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                       Text(
                         '+3 minutos antes do treino',
@@ -100,12 +122,12 @@ class _TrainingPageState extends State<TrainingPage> {
                         _isWarmupEnabled = value;
                       });
                     },
-                    activeColor: Colors.blue[800],
+                    activeThumbColor: Colors.blue[800],
                   ),
                 ],
               ),
               const SizedBox(height: 64.0),
-            
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -114,7 +136,10 @@ class _TrainingPageState extends State<TrainingPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[800],
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40.0,
+                        vertical: 16.0,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -122,11 +147,22 @@ class _TrainingPageState extends State<TrainingPage> {
                     child: const Text('INICIAR'),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => CreateTrainingPage(
+                            equipamentosSelecionados: _equipamentosSelecionados,
+                          ),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.blue[800],
-                      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40.0,
+                        vertical: 16.0,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(color: Colors.blue.shade800),
@@ -154,13 +190,7 @@ class _TrainingPageState extends State<TrainingPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-          ),
-        ),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 14)),
       ],
     );
   }
