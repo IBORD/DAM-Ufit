@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ufit/src/pages/home_page.dart';
 import 'package:ufit/src/pages/training_page.dart';
 import 'package:ufit/src/pages/profile_page.dart';
+import 'package:ufit/src/pages/agenda_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -16,9 +17,8 @@ class _MainScreenState extends State<MainScreen> {
   static const List<Widget> _widgetOptions = <Widget>[
     HomePage(),
     TrainingPage(),
-    Text('Página de Agenda (a ser implementada)'),
-    SignOutPage(),
-    // Text('Página de Perfil (a ser implementada)'),
+    AgendaPage(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {

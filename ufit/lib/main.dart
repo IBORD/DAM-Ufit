@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ufit/src/pages/auth.pages/auth_layout.dart';
 import 'package:ufit/src/pages/auth.pages/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'src/pages/register_pages/log_in_page.dart';
+import 'package:provider/provider.dart';
+import 'package:ufit/src/services/theme_service.dart';
+import 'package:ufit/src/services/language_service.dart';
 
 // void main() {//   runApp(const MyApp());
 // }
@@ -11,22 +14,55 @@ import 'src/pages/register_pages/log_in_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const MyApp());
+  // Initialize services
+  final themeService = ThemeService();
+  final languageService = LanguageService();
+  
+  await themeService.initializeTheme();
+  await languageService.initializeLanguage();
+
+  runApp(MyApp(
+    themeService: themeService,
+    languageService: languageService,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeService themeService;
+  final LanguageService languageService;
+
+  const MyApp({
+    super.key,
+    required this.themeService,
+    required this.languageService,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Ufit',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      debugShowCheckedModeBanner: false,
-      home: const AuthLayout(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: themeService),
+        ChangeNotifierProvider.value(value: languageService),
+      ],
+      child: Consumer2<ThemeService, LanguageService>(
+        builder: (context, themeService, languageService, child) {
+          return MaterialApp(
+            title: 'Ufit',
+            theme: themeService.getThemeData(),
+            locale: languageService.currentLocale,
+            supportedLocales: LanguageService.supportedLocalesList,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            debugShowCheckedModeBanner: false,
+            home: const AuthLayout(),
+          );
+        },
+      ),
     );
   }
 }

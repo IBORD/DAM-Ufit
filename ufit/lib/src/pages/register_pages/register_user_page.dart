@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ufit/src/pages/auth.pages/auth_service.dart';
+import 'package:ufit/src/pages/auth.pages/user_service.dart';
 import 'package:ufit/src/pages/main_page.dart';
 import 'package:ufit/src/pages/register_pages/log_in_page.dart';
 
@@ -46,6 +47,10 @@ class _RegisterPageState extends State<RegisterPage> {
         email: userData.email,
         password: userData.senha,
       );
+      
+      // Save user data to local storage
+      await UserService.saveUserData(userData);
+      
       return true;
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
