@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'equipment_page.dart';
+import 'package:ufit/src/models/training_model.dart';
+import 'package:ufit/src/services/training_service.dart';
+import 'package:ufit/src/services/user_preferences_service.dart';
 
 class CreateTrainingPage extends StatefulWidget {
   final List<Equipamento> equipamentosSelecionados;
@@ -18,7 +21,7 @@ class _CreateTrainingPageState extends State<CreateTrainingPage> {
   String _tipoTreino = 'FORÇA';
   int _duracao = 30;
 
-  final List<String> _areasSelecionadas = [];
+  List<String> _areasSelecionadas = [];
   List<Equipamento> _equipamentos = [];
 
   final List<String> _locais = ['CASA', 'ACADEMIA'];
@@ -30,6 +33,37 @@ class _CreateTrainingPageState extends State<CreateTrainingPage> {
   void initState() {
     super.initState();
     _equipamentos = List.from(widget.equipamentosSelecionados);
+    _loadUserPreferences();
+  }
+
+  Future<void> _loadUserPreferences() async {
+    try {
+      final defaultDuration = await UserPreferencesService.getPreference<int>(
+        UserPreferencesService.defaultWorkoutDurationKey,
+        defaultValue: 30,
+      );
+      final preferredType = await UserPreferencesService.getPreference<String>(
+        UserPreferencesService.preferredWorkoutTypeKey,
+        defaultValue: 'FORÇA',
+      );
+      final preferredLocation = await UserPreferencesService.getPreference<String>(
+        UserPreferencesService.preferredWorkoutLocationKey,
+        defaultValue: 'CASA',
+      );
+      final targetAreas = await UserPreferencesService.getPreference<List<String>>(
+        UserPreferencesService.targetAreasKey,
+        defaultValue: ['Superiores'],
+      );
+
+      setState(() {
+        _duracao = defaultDuration ?? 30;
+        _tipoTreino = preferredType ?? 'FORÇA';
+        _localTreino = preferredLocation ?? 'CASA';
+        _areasSelecionadas = List<String>.from(targetAreas ?? ['Superiores']);
+      });
+    } catch (e) {
+      print('Error loading user preferences: $e');
+    }
   }
 
   Future<void> _selecionarEquipamentos() async {
@@ -47,30 +81,64 @@ class _CreateTrainingPageState extends State<CreateTrainingPage> {
     }
   }
 
-  void _salvarTreino() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Treino Criado'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Local: $_localTreino'),
-            Text('Tipo: $_tipoTreino'),
-            Text('Duração: $_duracao min'),
-            Text('Áreas alvo: ${_areasSelecionadas.join(', ')}'),
-            Text('Equipamentos: ${_equipamentos.map((e) => e.nome).join(', ')}'),
+  void _salvarTreino() async {
+    if (_areasSelecionadas.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecione pelo menos uma área alvo')),
+      );
+      return;
+    }
+
+    // Generate exercises based on selected areas
+    final exercises = TrainingService.generateExercises(
+      _tipoTreino,
+      _areasSelecionadas,
+      _equipamentos,
+    );
+
+    // Create training
+    final training = Training(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: 'Treino $_tipoTreino - ${_areasSelecionadas.join(", ")}',
+      type: _tipoTreino,
+      location: _localTreino,
+      duration: _duracao,
+      targetAreas: _areasSelecionadas,
+      equipment: _equipamentos,
+      exercises: exercises,
+      createdAt: DateTime.now(),
+    );
+
+    // Save training
+    await TrainingService.saveTraining(training);
+
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Treino Salvo!'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Seu treino foi salvo com sucesso.'),
+              const SizedBox(height: 8),
+              Text('Nome: ${training.name}'),
+              Text('Exercícios: ${exercises.length}'),
+              Text('Duração: ${training.duration} minutos'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          )
-        ],
-      ),
-    );
+      );
+    }
   }
 
   Widget _buildSectionTitle(String title) {
