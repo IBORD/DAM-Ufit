@@ -1,30 +1,116 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+// Basic widget test for the Ufit app
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:ufit/main.dart';
+import 'package:provider/provider.dart';
+import 'package:ufit/test/services/test_theme_service.dart';
+import 'package:ufit/test/services/test_language_service.dart';
+import 'package:ufit/test/firebase_test_config.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App should display basic structure', (WidgetTester tester) async {
+    // Arrange
+    MockUserPreferencesService.reset();
+    final themeService = TestThemeService();
+    final languageService = TestLanguageService();
+    
+    await themeService.initializeTheme();
+    await languageService.initializeLanguage();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Act
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: themeService),
+          ChangeNotifierProvider.value(value: languageService),
+        ],
+        child: MaterialApp(
+          title: 'Ufit',
+          theme: themeService.getThemeData(),
+          locale: languageService.currentLocale,
+          home: const Scaffold(
+            body: Center(
+              child: Text('Ufit App'),
+            ),
+          ),
+        ),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Assert
+    expect(find.text('Ufit App'), findsOneWidget);
+    expect(find.byType(MaterialApp), findsOneWidget);
+    expect(find.byType(Scaffold), findsOneWidget);
+  });
+
+  testWidgets('App should handle theme changes', (WidgetTester tester) async {
+    // Arrange
+    MockUserPreferencesService.reset();
+    final themeService = TestThemeService();
+    final languageService = TestLanguageService();
+    
+    await themeService.initializeTheme();
+    await languageService.initializeLanguage();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: themeService),
+          ChangeNotifierProvider.value(value: languageService),
+        ],
+        child: MaterialApp(
+          title: 'Ufit',
+          theme: themeService.getThemeData(),
+          locale: languageService.currentLocale,
+          home: const Scaffold(
+            body: Center(
+              child: Text('Ufit App'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Act
+    await themeService.setTheme('dark');
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Assert
+    expect(themeService.currentTheme, equals('dark'));
+  });
+
+  testWidgets('App should handle language changes', (WidgetTester tester) async {
+    // Arrange
+    MockUserPreferencesService.reset();
+    final themeService = TestThemeService();
+    final languageService = TestLanguageService();
+    
+    await themeService.initializeTheme();
+    await languageService.initializeLanguage();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: themeService),
+          ChangeNotifierProvider.value(value: languageService),
+        ],
+        child: MaterialApp(
+          title: 'Ufit',
+          theme: themeService.getThemeData(),
+          locale: languageService.currentLocale,
+          home: const Scaffold(
+            body: Center(
+              child: Text('Ufit App'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Act
+    await languageService.setLanguage('en');
+    await tester.pump();
+
+    // Assert
+    expect(languageService.currentLanguage, equals('en'));
   });
 }

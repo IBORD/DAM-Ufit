@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ufit/src/pages/auth.pages/auth_layout.dart';
-import 'package:ufit/src/pages/auth.pages/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:ufit/src/services/theme_service.dart';
 import 'package:ufit/src/services/language_service.dart';
+import 'firebase_options.dart';
 
 // void main() {//   runApp(const MyApp());
 // }
@@ -20,8 +20,20 @@ void main() async {
   final themeService = ThemeService();
   final languageService = LanguageService();
   
-  await themeService.initializeTheme();
-  await languageService.initializeLanguage();
+
+  try {
+    await themeService.initializeTheme();
+  } catch (e) {
+    print('Error initializing theme: $e');
+    // Continue with default theme
+  }
+  
+  try {
+    await languageService.initializeLanguage();
+  } catch (e) {
+    print('Error initializing language: $e');
+    // Continue with default language
+  }
 
   runApp(MyApp(
     themeService: themeService,
