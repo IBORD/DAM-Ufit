@@ -4,6 +4,7 @@ import 'package:ufit/src/pages/auth.pages/auth_service.dart';
 import 'package:ufit/src/pages/auth.pages/user_service.dart';
 import 'package:ufit/src/pages/register_pages/log_in_page.dart';
 import 'package:ufit/src/pages/training_page.dart';
+import 'package:ufit/src/services/daily_challenge_service.dart';
 import 'package:ufit/src/services/training_service.dart';
 import 'package:ufit/src/pages/settings_page.dart';
 
@@ -69,6 +70,18 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _resetDailyChallenge() async {
+    await DailyChallengeService.resetChallenge();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Desafio diário reiniciado.'),
+          backgroundColor: Colors.blue,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +119,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
               // Training Calendar
               _buildTrainingCalendar(),
+              const SizedBox(height: 24.0),
+
+              // Botão para resetar o desafio diário (para testes)
+              ElevatedButton(
+                onPressed: _resetDailyChallenge,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Resetar Desafio Diário (Teste)'),
+              ),
             ],
           ),
         ),
@@ -133,11 +157,7 @@ class _ProfilePageState extends State<ProfilePage> {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.person,
-                  size: 40,
-                  color: Colors.blue[800],
-                ),
+                child: Icon(Icons.person, size: 40, color: Colors.blue[800]),
               ),
               const SizedBox(width: 16.0),
               Expanded(
@@ -164,10 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   );
                 },
-                icon: const Icon(
-                  Icons.settings,
-                  color: Colors.white,
-                ),
+                icon: const Icon(Icons.settings, color: Colors.white),
               ),
             ],
           ),
@@ -182,10 +199,7 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         const Text(
           'Suas Estatísticas',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: 16.0),
         Row(
@@ -257,11 +271,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 32,
-          ),
+          Icon(icon, color: color, size: 32),
           const SizedBox(height: 8.0),
           Text(
             value,
@@ -271,13 +281,7 @@ class _ProfilePageState extends State<ProfilePage> {
               color: color,
             ),
           ),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
+          Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
     );
@@ -309,18 +313,13 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 8.0),
           const Text(
             'Acesse seus treinos personalizados',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 16.0),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const TrainingPage(),
-                ),
+                MaterialPageRoute(builder: (context) => const TrainingPage()),
               );
             },
             icon: const Icon(Icons.play_arrow),
@@ -345,10 +344,7 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         const Text(
           'Calendário de Treinos',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: 16.0),
         Container(
@@ -381,20 +377,22 @@ class _ProfilePageState extends State<ProfilePage> {
     final daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: daysOfWeek.map((day) => 
-        SizedBox(
-          width: 40,
-          child: Text(
-            day,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              color: Colors.grey,
+      children: daysOfWeek
+          .map(
+            (day) => SizedBox(
+              width: 40,
+              child: Text(
+                day,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-        )
-      ).toList(),
+          )
+          .toList(),
     );
   }
 
@@ -402,19 +400,19 @@ class _ProfilePageState extends State<ProfilePage> {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
-    
+
     // Find the first day to display (Monday of the week containing the 1st)
     final firstDisplayDay = startOfMonth.subtract(
-      Duration(days: startOfMonth.weekday - 1)
+      Duration(days: startOfMonth.weekday - 1),
     );
-    
+
     // Find the last day to display (Sunday of the week containing the last day)
     final lastDisplayDay = endOfMonth.add(
-      Duration(days: 7 - endOfMonth.weekday)
+      Duration(days: 7 - endOfMonth.weekday),
     );
-    
+
     final daysToShow = lastDisplayDay.difference(firstDisplayDay).inDays + 1;
-    
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -428,24 +426,28 @@ class _ProfilePageState extends State<ProfilePage> {
       itemBuilder: (context, index) {
         final date = firstDisplayDay.add(Duration(days: index));
         final isCurrentMonth = date.month == now.month;
-        final isToday = date.day == now.day && date.month == now.month && date.year == now.year;
-        final hasTrained = trainingDays.any((trainingDay) => 
-          trainingDay.day == date.day && 
-          trainingDay.month == date.month && 
-          trainingDay.year == date.year
+        final isToday =
+            date.day == now.day &&
+            date.month == now.month &&
+            date.year == now.year;
+        final hasTrained = trainingDays.any(
+          (trainingDay) =>
+              trainingDay.day == date.day &&
+              trainingDay.month == date.month &&
+              trainingDay.year == date.year,
         );
-        
+
         return Container(
           decoration: BoxDecoration(
-            color: hasTrained 
-              ? Colors.green.withOpacity(0.2)
-              : isToday 
+            color: hasTrained
+                ? Colors.green.withOpacity(0.2)
+                : isToday
                 ? Colors.blue.withOpacity(0.1)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
-            border: hasTrained 
-              ? Border.all(color: Colors.green, width: 2)
-              : isToday 
+            border: hasTrained
+                ? Border.all(color: Colors.green, width: 2)
+                : isToday
                 ? Border.all(color: Colors.blue, width: 2)
                 : null,
           ),
@@ -458,9 +460,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                    color: isCurrentMonth 
-                      ? (hasTrained ? Colors.green : Colors.black)
-                      : Colors.grey,
+                    color: isCurrentMonth
+                        ? (hasTrained ? Colors.green : Colors.black)
+                        : Colors.grey,
                   ),
                 ),
                 if (hasTrained)
@@ -487,19 +489,19 @@ class SignOutPage extends StatelessWidget {
       await authService.value.signOut();
       await UserService.clearUserData();
       if (context.mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
       }
     } on FirebaseAuthException catch (e) {
       print("Erro ao fazer logout: $e");
       if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao fazer logout: ${e.message}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao fazer logout: ${e.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }

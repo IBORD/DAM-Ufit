@@ -122,7 +122,7 @@ class _TrainingPageState extends State<TrainingPage> {
                         _isWarmupEnabled = value;
                       });
                     },
-                    activeThumbColor: Colors.blue[800],
+                    activeColor: Colors.blue[800],
                   ),
                 ],
               ),
