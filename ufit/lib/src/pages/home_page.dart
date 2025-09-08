@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ufit/src/viewmodels/home_viewmodel.dart';
 import 'package:ufit/src/models/training_model.dart';
 import 'package:ufit/src/pages/agenda_page.dart';
+import 'package:ufit/src/pages/daily_challenge_page.dart';
+import 'package:ufit/src/services/daily_challenge_service.dart';
+import 'package:ufit/src/viewmodels/home_viewmodel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -69,13 +71,16 @@ class _HomePageState extends State<HomePage> {
           }
 
           // Build calendar days
-          final calendarDays = viewModel.getCurrentWeekCalendar()
-              .map((day) => _buildDayWithDate(
-                    day.dayName,
-                    day.dayNumber,
-                    isToday: day.isToday,
-                    hasTraining: day.hasTraining,
-                  ))
+          final calendarDays = viewModel
+              .getCurrentWeekCalendar()
+              .map(
+                (day) => _buildDayWithDate(
+                  day.dayName,
+                  day.dayNumber,
+                  isToday: day.isToday,
+                  hasTraining: day.hasTraining,
+                ),
+              )
               .toList();
 
           return Scaffold(
@@ -98,12 +103,15 @@ class _HomePageState extends State<HomePage> {
                       children: calendarDays,
                     ),
                     const SizedBox(height: 32.0),
-                    
+
                     // Today's trainings
                     if (viewModel.todaySessions.isNotEmpty) ...[
                       const Text(
                         'Treinos de Hoje',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                       const SizedBox(height: 16.0),
                       _buildTodayTrainings(viewModel),
@@ -113,7 +121,10 @@ class _HomePageState extends State<HomePage> {
                     // Available trainings
                     const Text(
                       'Seus Treinos',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                     const SizedBox(height: 16.0),
                     _buildAvailableTrainings(viewModel),
@@ -122,7 +133,10 @@ class _HomePageState extends State<HomePage> {
                     // Título "Sua atividade"
                     const Text(
                       'Sua atividade',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                     const SizedBox(height: 16.0),
                     // Card "Início fácil"
@@ -133,10 +147,10 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.blue[800],
                         borderRadius: BorderRadius.circular(16.0),
                       ),
-                      child: Column(
+                      child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Início fácil:',
                             style: TextStyle(
                               color: Colors.white,
@@ -144,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const Text(
+                          Text(
                             'em casa',
                             style: TextStyle(
                               color: Colors.white,
@@ -155,74 +169,34 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-              const SizedBox(height: 32.0),
-              // Título "Desafio"
-              const Text(
-                'Desafio',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              const SizedBox(height: 16.0),
-              // Card "Rotina matinal"
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.blue[800],
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                    const SizedBox(height: 32.0),
+                    // Título "Desafio"
                     const Text(
-                      'Rotina',
+                      'Desafio',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
-                    ),
-                    const Text(
-                      'matinal',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    const Text(
-                      '0/7 dias',
-                      style: TextStyle(color: Colors.white70),
                     ),
                     const SizedBox(height: 16.0),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.blue[800],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      child: const Text(
-                        'INICIAR',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    // Card "Rotina matinal"
+                    const DailyChallengeCard(),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
         },
       ),
     );
   }
 
-  Widget _buildDayWithDate(String day, int date, {bool isToday = false, bool hasTraining = false}) {
+  Widget _buildDayWithDate(
+    String day,
+    int date, {
+    bool isToday = false,
+    bool hasTraining = false,
+  }) {
     return Column(
       children: [
         Text(
@@ -265,9 +239,13 @@ class _HomePageState extends State<HomePage> {
                 child: Card(
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: session.isCompleted ? Colors.green : Colors.blue[800],
+                      backgroundColor: session.isCompleted
+                          ? Colors.green
+                          : Colors.blue[800],
                       child: Icon(
-                        session.isCompleted ? Icons.check : Icons.fitness_center,
+                        session.isCompleted
+                            ? Icons.check
+                            : Icons.fitness_center,
                         color: Colors.white,
                       ),
                     ),
@@ -278,15 +256,15 @@ class _HomePageState extends State<HomePage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
-                      session.isCompleted 
-                        ? 'Concluído • ${session.caloriesBurned?.toStringAsFixed(0) ?? '0'} kcal'
-                        : '${training.duration}min',
+                      session.isCompleted
+                          ? 'Concluído • ${session.caloriesBurned?.toStringAsFixed(0) ?? '0'} kcal'
+                          : '${training.duration}min',
                     ),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AgendaPage(),
+                          builder: (context) => const AgendaPage(),
                         ),
                       );
                     },
@@ -310,26 +288,16 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Column(
           children: [
-            Icon(
-              Icons.fitness_center,
-              size: 48,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.fitness_center, size: 48, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'Nenhum treino criado ainda',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Text(
               'Crie seu primeiro treino na aba "Treinos"',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -351,10 +319,7 @@ class _HomePageState extends State<HomePage> {
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: Colors.blue[800],
-                  child: Icon(
-                    Icons.fitness_center,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.fitness_center, color: Colors.white),
                 ),
                 title: Text(
                   training.name,
@@ -362,21 +327,111 @@ class _HomePageState extends State<HomePage> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                subtitle: Text(
-                  '${training.type} • ${training.duration}min',
-                ),
+                subtitle: Text('${training.type} • ${training.duration}min'),
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => AgendaPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const AgendaPage()),
                   );
                 },
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class DailyChallengeCard extends StatefulWidget {
+  const DailyChallengeCard({super.key});
+
+  @override
+  State<DailyChallengeCard> createState() => _DailyChallengeCardState();
+}
+
+class _DailyChallengeCardState extends State<DailyChallengeCard> {
+  int _challengeProgress = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkChallengeStatus();
+  }
+
+  Future<void> _checkChallengeStatus() async {
+    final progress = await DailyChallengeService.getChallengeProgress();
+    if (mounted) {
+      setState(() {
+        _challengeProgress = progress;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const DailyChallengePage()),
+        ).then((_) => _checkChallengeStatus());
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.blue[800],
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Rotina',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Text(
+              'matinal',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Text(
+              '$_challengeProgress/7 dias',
+              style: const TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DailyChallengePage(),
+                  ),
+                ).then((_) => _checkChallengeStatus());
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.blue[800],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text(
+                'INICIAR',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
