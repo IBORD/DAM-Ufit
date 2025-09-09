@@ -224,15 +224,7 @@ class _CreateTrainingPageState extends State<CreateTrainingPage> {
               selectedItem: _tipoTreino,
               onSelected: (value) => setState(() => _tipoTreino = value),
             ),
-
-            _buildSectionTitle('Equipamentos'),
-            ElevatedButton(
-              onPressed: _selecionarEquipamentos,
-              child: const Text('Selecionar Equipamentos'),
-            ),
-            const SizedBox(height: 8),
-            _buildEquipamentoChips(),
-
+            
             _buildSectionTitle('Duração do treino'),
             DropdownButton<int>(
               value: _duracao,

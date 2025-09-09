@@ -129,47 +129,6 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 16.0),
                     _buildAvailableTrainings(viewModel),
                     const SizedBox(height: 32.0),
-
-                    // Título "Sua atividade"
-                    const Text(
-                      'Sua atividade',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    // Card "Início fácil"
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[800],
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Início fácil:',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'em casa',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32.0),
                     // Título "Desafio"
                     const Text(
                       'Desafio',
