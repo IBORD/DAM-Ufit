@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ufit/src/models/training_model.dart';
-import 'package:ufit/src/pages/agenda_page.dart';
 import 'package:ufit/src/pages/daily_challenge_page.dart';
 import 'package:ufit/src/services/daily_challenge_service.dart';
+import 'package:ufit/src/services/training_service.dart';
 import 'package:ufit/src/viewmodels/home_viewmodel.dart';
+import 'package:ufit/src/pages/training_execution_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,22 +15,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // NÃO criamos mais o ViewModel aqui.
-
   @override
   void initState() {
     super.initState();
-    // Acessamos o ViewModel provido e carregamos os dados.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<HomeViewModel>(context, listen: false).loadData();
     });
   }
 
-  // O dispose não é mais necessário aqui, pois o Provider gerencia o ViewModel.
-
   @override
   Widget build(BuildContext context) {
-    // Acessamos o ViewModel usando o Consumer
     return Consumer<HomeViewModel>(
       builder: (context, viewModel, child) {
         if (viewModel.isLoading) {
@@ -211,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const AgendaPage(),
+                          builder: (context) => TrainingExecutionPage(session: session),
                         ),
                       );
                     },
@@ -275,10 +270,34 @@ class _HomePageState extends State<HomePage> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text('${training.type} • ${training.duration}min'),
-                onTap: () {
+                onTap: () async {
+                  final session = TrainingSession(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    trainingId: training.id,
+                    date: DateTime.now(),
+                    duration: training.duration,
+                    exercises: training.exercises.map((exercise) => ExerciseSession(
+                      exerciseName: exercise.name,
+                      sets: exercise.sets,
+                      reps: exercise.reps,
+                      restSeconds: exercise.restSeconds,
+                      setSessions: List.generate(
+                        exercise.sets,
+                        (index) => SetSession(
+                          setNumber: index + 1,
+                          reps: exercise.reps,
+                        ),
+                      ),
+                    )).toList(),
+                  );
+
+                  await TrainingService.saveTrainingSession(session);
+
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AgendaPage()),
+                    MaterialPageRoute(
+                      builder: (context) => TrainingExecutionPage(session: session),
+                    ),
                   );
                 },
               ),
