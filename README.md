@@ -42,29 +42,11 @@ O Ufit foi concebido com base na análise e nas melhores práticas de aplicativo
 
 ---
 
-## 📋 Backlog Inicial (User Stories)
+## 📋 Backlog
 
 Nosso backlog é uma lista viva das funcionalidades que queremos entregar. Ele será refinado e priorizado continuamente.
 
-### **Épico: Perfil e Personalização do Treino**
-
-* Como um **novo usuário**, quero **criar um perfil com meus dados básicos e objetivos** (peso, altura, idade, objetivo de treino) para que o aplicativo possa me conhecer.
-* Como um **usuário**, quero **informar se treino em casa ou na academia e quais equipamentos tenho disponível** para que o plano de treino seja adequado ao meu ambiente.
-* Como um **usuário**, quero **definir meu nível de experiência com exercícios** (iniciante, intermediário, avançado) para que o treino seja apropriado à minha capacidade atual.
-* Como um **usuário**, quero **receber um plano de treino diário/semanal personalizado** com base no meu perfil para saber exatamente o que fazer.
-* Como um **usuário**, quero **visualizar os exercícios do meu treino com instruções claras** (séries, repetições, tempo de descanso) para executá-los corretamente.
-
-### **Épico: Execução e Acompanhamento do Treino**
-
-* Como um **usuário**, quero **marcar os exercícios como concluídos** para acompanhar meu progresso durante o treino.
-* Como um **usuário**, quero **ver um resumo do meu treino ao finalizá-lo** (ex: tempo total, calorias estimadas) para ter um feedback imediato.
-* Como um **usuário**, quero **registrar meu peso e medidas corporalmente** ao longo do tempo para monitorar minha evolução.
-* Como um **usuário**, quero **visualizar gráficos de progresso** (ex: peso, volume de treino) para me manter motivado.
-
-### **Épico: Engajamento e Melhorias**
-
-* Como um **usuário**, quero **receber notificações e lembretes de treino** para me ajudar a manter a consistência.
-* Como um **usuário**, quero **poder relatar um problema ou sugerir uma melhoria** para que o aplicativo possa ser aprimorado.
+**[Backlog](https://docs.google.com/document/d/1OGaHYkHmTHJR50zvO1cZtQzwmQzaGLxjN44Z4bY4A-s/edit?usp=sharing)**
 
 ---
 
