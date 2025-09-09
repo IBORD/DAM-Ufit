@@ -4,7 +4,6 @@ import 'package:ufit/src/pages/auth.pages/auth_service.dart';
 import 'package:ufit/src/pages/register_pages/register_user_page.dart';
 import 'package:ufit/src/pages/main_page.dart';
 
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -19,7 +18,6 @@ class _LoginPageState extends State<LoginPage> {
   String _password = '';
   String _resetEmail = '';
 
-
   void PasswordDialog() {
     showDialog(
       context: context,
@@ -27,9 +25,7 @@ class _LoginPageState extends State<LoginPage> {
         return AlertDialog(
           title: const Text('Recuperar senha'),
           content: TextField(
-            decoration: const InputDecoration(
-              labelText: 'Digite seu email',
-            ),
+            decoration: const InputDecoration(labelText: 'Digite seu email'),
             onChanged: (value) {
               _resetEmail = value;
             },
@@ -69,7 +65,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-
   void logIn() async {
     final form = _formKey.currentState;
     if (form != null && form.validate()) {
@@ -80,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MainScreen()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
         );
       } on FirebaseAuthException catch (e) {
         print("Erro ao fazer login: ${e.message}");
@@ -109,10 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const Text(
                     'UFIT',
-                    style: TextStyle(
-                      fontSize: 75,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 75, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.start,
                   ),
                   const Text(
@@ -136,9 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     onSaved: (value) => _username = value ?? '',
                   ),
-
                   const SizedBox(height: 16),
-
                   TextFormField(
                     decoration: const InputDecoration(
                       labelText: 'Senha',
@@ -153,7 +143,6 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     onSaved: (value) => _password = value ?? '',
                   ),
-
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
@@ -161,9 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Text('Esqueceu a senha?'),
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
                   const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

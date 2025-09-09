@@ -68,7 +68,7 @@ class LanguageService extends ChangeNotifier {
   }
 
   // Get localized text (simple implementation)
-  static String getText(String key, String language) {
+  static String getLocalizedText(String key, String language) {
     final translations = {
       'pt': {
         'app_title': 'Ufit',
@@ -212,6 +212,6 @@ class LanguageService extends ChangeNotifier {
 
   // Get localized text for current language
   String getText(String key) {
-    return LanguageService.getText(key, _currentLanguage);
+    return LanguageService.getLocalizedText(key, _currentLanguage);
   }
 }
