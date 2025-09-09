@@ -197,7 +197,7 @@ class _TrainingPageState extends State<TrainingPage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: const Text('Treinos'),
+          child: const Text('TREINOS'),
         ),
         ElevatedButton(
           onPressed: () async {
