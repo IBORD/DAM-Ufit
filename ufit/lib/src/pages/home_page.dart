@@ -14,139 +14,127 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late HomeViewModel _viewModel;
+  // NÃO criamos mais o ViewModel aqui.
 
   @override
   void initState() {
     super.initState();
-    _viewModel = HomeViewModel();
-    _viewModel.loadData();
+    // Acessamos o ViewModel provido e carregamos os dados.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<HomeViewModel>(context, listen: false).loadData();
+    });
   }
 
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
-  }
+  // O dispose não é mais necessário aqui, pois o Provider gerencia o ViewModel.
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: _viewModel,
-      child: Consumer<HomeViewModel>(
-        builder: (context, viewModel, child) {
-          if (viewModel.isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+    // Acessamos o ViewModel usando o Consumer
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        if (viewModel.isLoading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-          if (viewModel.errorMessage != null) {
-            return Scaffold(
-              appBar: AppBar(
-                title: const Text('Início'),
-                backgroundColor: Colors.blue[800],
-                foregroundColor: Colors.white,
-              ),
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error, size: 64, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text(
-                      viewModel.errorMessage!,
-                      style: const TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => viewModel.refreshData(),
-                      child: const Text('Tentar Novamente'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          // Build calendar days
-          final calendarDays = viewModel
-              .getCurrentWeekCalendar()
-              .map(
-                (day) => _buildDayWithDate(
-                  day.dayName,
-                  day.dayNumber,
-                  isToday: day.isToday,
-                  hasTraining: day.hasTraining,
-                ),
-              )
-              .toList();
-
+        if (viewModel.errorMessage != null) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text(
-                'Início',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-              ),
-              titleSpacing: 20.0,
+              title: const Text('Início'),
+              backgroundColor: Colors.blue[800],
+              foregroundColor: Colors.white,
             ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Calendário dinâmico
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: calendarDays,
-                    ),
-                    const SizedBox(height: 32.0),
-
-                    // Today's trainings
-                    if (viewModel.todaySessions.isNotEmpty) ...[
-                      const Text(
-                        'Treinos de Hoje',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      _buildTodayTrainings(viewModel),
-                      const SizedBox(height: 32.0),
-                    ],
-
-                    // Available trainings
-                    const Text(
-                      'Seus Treinos',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    _buildAvailableTrainings(viewModel),
-                    const SizedBox(height: 32.0),
-                    // Título "Desafio"
-                    const Text(
-                      'Desafio',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    // Card "Rotina matinal"
-                    const DailyChallengeCard(),
-                  ],
-                ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    viewModel.errorMessage!,
+                    style: const TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => viewModel.refreshData(),
+                    child: const Text('Tentar Novamente'),
+                  ),
+                ],
               ),
             ),
           );
-        },
-      ),
+        }
+
+        final calendarDays = viewModel
+            .getCurrentWeekCalendar()
+            .map(
+              (day) => _buildDayWithDate(
+                day.dayName,
+                day.dayNumber,
+                isToday: day.isToday,
+                hasTraining: day.hasTraining,
+              ),
+            )
+            .toList();
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              'Início',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            ),
+            titleSpacing: 20.0,
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: calendarDays,
+                  ),
+                  const SizedBox(height: 32.0),
+                  if (viewModel.todaySessions.isNotEmpty) ...[
+                    const Text(
+                      'Treinos de Hoje',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildTodayTrainings(viewModel),
+                    const SizedBox(height: 32.0),
+                  ],
+                  const Text(
+                    'Seus Treinos',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  _buildAvailableTrainings(viewModel),
+                  const SizedBox(height: 32.0),
+                  const Text(
+                    'Desafio',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  const DailyChallengeCard(),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
