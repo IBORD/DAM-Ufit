@@ -197,17 +197,19 @@ class _TrainingPageState extends State<TrainingPage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: const Text('INICIAR'),
+          child: const Text('Treinos'),
         ),
         ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(
+          onPressed: () async {
+            await Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => CreateTrainingPage(
                   equipamentosSelecionados: _equipamentosSelecionados,
                 ),
               ),
             );
+            // 🔄 recarregar lista de treinos quando voltar
+            _loadTrainings();
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
@@ -255,7 +257,7 @@ class _TrainingPageState extends State<TrainingPage> {
                   Navigator.pop(context); // fecha o modal
 
                   // Criar sessão de treino
-                  final session =  TrainingSession(
+                  final session = TrainingSession(
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
                     trainingId: training.id,
                     date: _selectedDate,
@@ -265,10 +267,13 @@ class _TrainingPageState extends State<TrainingPage> {
                       sets: exercise.sets,
                       reps: exercise.reps,
                       restSeconds: exercise.restSeconds,
-                      setSessions: List.generate(exercise.sets, (index) => SetSession(
-                        setNumber: index + 1,
-                        reps: exercise.reps,
-                      )),
+                      setSessions: List.generate(
+                        exercise.sets,
+                        (index) => SetSession(
+                          setNumber: index + 1,
+                          reps: exercise.reps,
+                        ),
+                      ),
                     )).toList(),
                   );
 
