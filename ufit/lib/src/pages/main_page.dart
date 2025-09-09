@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ufit/src/pages/home_page.dart';
 import 'package:ufit/src/pages/training_page.dart';
 import 'package:ufit/src/pages/profile_page.dart';
 import 'package:ufit/src/pages/agenda_page.dart';
+import 'package:ufit/src/viewmodels/home_viewmodel.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,11 +16,14 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    TrainingPage(),
-    AgendaPage(),
-    ProfilePage(),
+  static final List<Widget> _widgetOptions = <Widget>[
+    ChangeNotifierProvider(
+      create: (_) => HomeViewModel(),
+      child: const HomePage(),
+    ),
+    const TrainingPage(),
+    const AgendaPage(),
+    const ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
