@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class Equipamento {
   final String nome;
@@ -34,7 +35,6 @@ class Equipamento {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
     return other is Equipamento &&
         other.nome == nome &&
         other.categoria == categoria;
@@ -66,8 +66,10 @@ class _EquipmentPageState extends State<EquipmentPage> {
   void initState() {
     super.initState();
     _carregarEquipamentosSalvos();
+    _carregarEquipamentosAPI();
   }
 
+  // Carrega equipamentos salvos localmente
   Future<void> _carregarEquipamentosSalvos() async {
     final prefs = await SharedPreferences.getInstance();
     final String? dados = prefs.getString(_storageKey);
@@ -80,12 +82,14 @@ class _EquipmentPageState extends State<EquipmentPage> {
     }
   }
 
+  // Salva equipamentos localmente
   Future<void> _salvarEquipamentos() async {
     final prefs = await SharedPreferences.getInstance();
     final String encoded = Equipamento.encodeList(_todosEquipamentos);
     await prefs.setString(_storageKey, encoded);
   }
 
+  // Adiciona um novo equipamento criado pelo usuário
   void _adicionarEquipamento() {
     final nome = _nomeController.text.trim();
     if (nome.isEmpty) return;
@@ -105,6 +109,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
     }
   }
 
+  // Alterna seleção de equipamento
   void _alternarSelecao(Equipamento equipamento) {
     setState(() {
       if (_selecionados.contains(equipamento)) {
@@ -115,6 +120,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
     });
   }
 
+  // Remove equipamento
   void _removerEquipamento(Equipamento equipamento) {
     setState(() {
       _todosEquipamentos.remove(equipamento);
@@ -122,6 +128,42 @@ class _EquipmentPageState extends State<EquipmentPage> {
     });
 
     _salvarEquipamentos();
+  }
+
+  // Carrega equipamentos da API
+  Future<void> _carregarEquipamentosAPI() async {
+    const url = 'https://api.api-ninjas.com/v1/exercises?muscle=chest'; // Exemplo: chest
+    const apiKey = 'HWM5a61dpro2Jz47Q8DpoQ==y72MgDIW3NDCK1Ve'; // Coloque sua chave da API aqui
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'X-Api-Key': apiKey},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+
+        final List<Equipamento> apiEquipamentos = data.map((item) {
+          return Equipamento(
+            nome: item['name'] ?? 'Desconhecido',
+            categoria: item['equipment'] ?? 'Funcional',
+          );
+        }).toList();
+
+        setState(() {
+          for (var eq in apiEquipamentos) {
+            if (!_todosEquipamentos.contains(eq)) {
+              _todosEquipamentos.add(eq);
+            }
+          }
+        });
+      } else {
+        print('Erro ao carregar equipamentos da API: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erro ao acessar API: $e');
+    }
   }
 
   @override
@@ -164,15 +206,15 @@ class _EquipmentPageState extends State<EquipmentPage> {
                   },
                   items: _categorias
                       .map((cat) => DropdownMenuItem(
-                    value: cat,
-                    child: Text(cat),
-                  ))
+                            value: cat,
+                            child: Text(cat),
+                          ))
                       .toList(),
                 ),
                 IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: _adicionarEquipamento,
-                )
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -181,33 +223,36 @@ class _EquipmentPageState extends State<EquipmentPage> {
               child: _todosEquipamentos.isEmpty
                   ? const Center(child: Text('Nenhum equipamento adicionado.'))
                   : ListView.builder(
-                itemCount: _todosEquipamentos.length,
-                itemBuilder: (context, index) {
-                  final equipamento = _todosEquipamentos[index];
-                  final selecionado = _selecionados.contains(equipamento);
+                      itemCount: _todosEquipamentos.length,
+                      itemBuilder: (context, index) {
+                        final equipamento = _todosEquipamentos[index];
+                        final selecionado = _selecionados.contains(equipamento);
 
-                  return ListTile(
-                    title: Text(equipamento.nome),
-                    subtitle: Text('Categoria: ${equipamento.categoria}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            selecionado ? Icons.check_box : Icons.check_box_outline_blank,
-                            color: selecionado ? Colors.blue : null,
+                        return ListTile(
+                          title: Text(equipamento.nome),
+                          subtitle: Text('Categoria: ${equipamento.categoria}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  selecionado
+                                      ? Icons.check_box
+                                      : Icons.check_box_outline_blank,
+                                  color: selecionado ? Colors.blue : null,
+                                ),
+                                onPressed: () => _alternarSelecao(equipamento),
+                              ),
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _removerEquipamento(equipamento),
+                              ),
+                            ],
                           ),
-                          onPressed: () => _alternarSelecao(equipamento),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _removerEquipamento(equipamento),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
             ElevatedButton(
               onPressed: () {
