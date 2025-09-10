@@ -26,9 +26,11 @@ class _TrainingPageState extends State<TrainingPage> {
 
   Future<void> _loadTrainings() async {
     final trainings = await TrainingService.getTrainings();
-    setState(() {
-      _trainings = trainings;
-    });
+    if (mounted) {
+      setState(() {
+        _trainings = trainings;
+      });
+    }
   }
 
   void _startTraining(TrainingSession session) {
@@ -38,6 +40,35 @@ class _TrainingPageState extends State<TrainingPage> {
         builder: (context) => TrainingExecutionPage(session: session),
       ),
     ).then((_) => _loadTrainings());
+  }
+
+  Future<void> _deleteTraining(String trainingId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: const Text('Deseja realmente excluir este treino permanentemente?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Excluir',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await TrainingService.deleteTraining(trainingId);
+      // 🔄 Recarrega a lista e fecha o modal
+      _loadTrainings();
+    }
   }
 
   @override
@@ -208,7 +239,6 @@ class _TrainingPageState extends State<TrainingPage> {
                 ),
               ),
             );
-            // 🔄 recarregar lista de treinos quando voltar
             _loadTrainings();
           },
           style: ElevatedButton.styleFrom(
@@ -243,48 +273,56 @@ class _TrainingPageState extends State<TrainingPage> {
           );
         }
 
-        return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.6,
-          child: ListView.builder(
-            itemCount: _trainings.length,
-            itemBuilder: (context, index) {
-              final training = _trainings[index];
-              return ListTile(
-                title: Text(training.name),
-                subtitle: Text('${training.type} • ${training.duration}min'),
-                leading: const Icon(Icons.fitness_center, color: Colors.blue),
-                onTap: () async {
-                  Navigator.pop(context); // fecha o modal
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: ListView.builder(
+                itemCount: _trainings.length,
+                itemBuilder: (context, index) {
+                  final training = _trainings[index];
+                  return ListTile(
+                    title: Text(training.name),
+                    subtitle: Text('${training.type} • ${training.duration}min'),
+                    leading: const Icon(Icons.fitness_center, color: Colors.blue),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () async {
+                        await _deleteTraining(training.id);
+                        setModalState(() {}); // Atualiza o modal imediatamente
+                      },
+                    ),
+                    onTap: () async {
+                      Navigator.pop(context); // fecha o modal
 
-                  // Criar sessão de treino
-                  final session = TrainingSession(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    trainingId: training.id,
-                    date: _selectedDate,
-                    duration: training.duration,
-                    exercises: training.exercises.map((exercise) => ExerciseSession(
-                      exerciseName: exercise.name,
-                      sets: exercise.sets,
-                      reps: exercise.reps,
-                      restSeconds: exercise.restSeconds,
-                      setSessions: List.generate(
-                        exercise.sets,
-                        (index) => SetSession(
-                          setNumber: index + 1,
+                      final session = TrainingSession(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        trainingId: training.id,
+                        date: _selectedDate,
+                        duration: training.duration,
+                        exercises: training.exercises.map((exercise) => ExerciseSession(
+                          exerciseName: exercise.name,
+                          sets: exercise.sets,
                           reps: exercise.reps,
-                        ),
-                      ),
-                    )).toList(),
+                          restSeconds: exercise.restSeconds,
+                          setSessions: List.generate(
+                            exercise.sets,
+                            (index) => SetSession(
+                              setNumber: index + 1,
+                              reps: exercise.reps,
+                            ),
+                          ),
+                        )).toList(),
+                      );
+
+                      await TrainingService.saveTrainingSession(session);
+                      _startTraining(session);
+                    },
                   );
-
-                  await TrainingService.saveTrainingSession(session);
-
-                  // Abrir tela de execução do treino
-                  _startTraining(session);
                 },
-              );
-            },
-          ),
+              ),
+            );
+          },
         );
       },
     );
