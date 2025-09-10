@@ -82,4 +82,9 @@ Se você teve a oportunidade de testar nosso protótipo ou tem sugestões e idei
 
 ---
 
+## 📊 Slides da Apresentação
+
+**[Slides](https://docs.google.com/presentation/d/1zzE3zZIGUeKkjlHcM7uS8_zADoz0Qd9VIdfY4nYxlhs/edit?usp=sharing)**
+
+---
 **Este README será atualizado conforme o projeto avança, refletindo novas funcionalidades, refinamentos no planejamento e o progresso do desenvolvimento.**
